@@ -18,15 +18,17 @@ const ApiTest: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <h1>API Test</h1>
+    <div className="mt-3 text-center">
+      <h1 className="text-2xl">一言掲示板</h1>
       {data.length > 0 ? (
-        <div>
-          <h2>Data Received</h2>
+        <div className="max-w-lg mx-auto text-left">
           {data.map((item) => (
-            <div key={item.id}>
-              <h3>{item.name}</h3>
-              <p>{item.description}</p>
+            <div key={item.id} className="py-3 border-b-2">
+              <div className="flex justify-between items-baseline">
+                <span className="px-3 pb-3 text-lg">{item.name}</span>
+                <span className="px-3 pb-3 text-md">{item.date}</span>
+              </div>
+              <p className="px-3">{item.description}</p>
             </div>
           ))}
         </div>
