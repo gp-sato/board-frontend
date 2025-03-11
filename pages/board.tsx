@@ -11,7 +11,7 @@ const ApiTest: React.FC = () => {
   const [data, setData] = useState<ApiResponseItem[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/test')
+    fetch('http://localhost:8000/api/posts')
       .then(response => response.json())
       .then((data: ApiResponseItem[]) => setData(data))
       .catch(error => console.error('Error fetching data:', error));
