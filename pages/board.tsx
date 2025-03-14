@@ -7,15 +7,15 @@ interface ApiResponseItem {
   description: string;
 }
 
-const ApiTest: React.FC = () => {
-  const [data, setData] = useState<ApiResponseItem[]>([]);
+const Board: React.FC = () => {
+  const [posts, setPosts] = useState<ApiResponseItem[]>([]);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
   useEffect(() => {
     fetch('http://localhost:8000/api/posts')
       .then(response => response.json())
-      .then((data: ApiResponseItem[]) => setData(data))
+      .then((data: ApiResponseItem[]) => setPosts(data))
       .catch(error => console.error('Error fetching data:', error));
   }, []);
 
@@ -27,15 +27,29 @@ const ApiTest: React.FC = () => {
     setDescription(e.target.value);
   };
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     if (!name.trim() || !description.trim()) return;
 
-    console.log(name, description);
+    const url = 'http://localhost:8000/api/posts';
+    const params = {
+      method : "POST",
+      headers : {
+        'Content-Type' : 'application/json'
+      },
+      body : JSON.stringify({name : name, description : description})
+    };
+    const response = await fetch(url, params);
+    const newPost = await response.json();
 
-    setName("");
-    setDescription("");
+    console.log(newPost)
+
+    if (newPost.status) {
+      setPosts(oldPosts => [...oldPosts, newPost.data]);
+      setName("");
+      setDescription("");
+    }
   };
 
   return (
@@ -63,15 +77,15 @@ const ApiTest: React.FC = () => {
         <br />
         <button type="submit" className="p-2 bg-blue-300 rounded">投稿</button>
       </form>
-      {data.length > 0 ? (
+      {posts.length > 0 ? (
         <div className="max-w-lg mx-auto text-left">
-          {data.map((item) => (
-            <div key={item.id} className="py-3 border-b-2">
+          {posts.map((post) => (
+            <div key={post.id} className="py-3 border-b-2">
               <div className="flex justify-between items-baseline">
-                <span className="px-3 pb-3 text-lg">{item.name}</span>
-                <span className="px-3 pb-3 text-md">{item.date}</span>
+                <span className="px-3 pb-3 text-lg">{post.name}</span>
+                <span className="px-3 pb-3 text-md">{post.date}</span>
               </div>
-              <p className="px-3">{item.description}</p>
+              <p className="px-3">{post.description}</p>
             </div>
           ))}
         </div>
@@ -82,4 +96,4 @@ const ApiTest: React.FC = () => {
   );
 }; 
 
-export default ApiTest;
+export default Board;
