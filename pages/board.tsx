@@ -11,6 +11,7 @@ const Board: React.FC = () => {
   const [posts, setPosts] = useState<ApiResponseItem[]>([]);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/posts')
@@ -20,17 +21,38 @@ const Board: React.FC = () => {
   }, []);
 
   const handleName: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setName(e.target.value);
+    if (e.target.value.trim().length > 100) {
+      setErrorMessages(['名前は１００文字までです。']);
+      return;
+    }
+
+    setName(e.target.value.trim());
   };
 
   const handleDescription: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    setDescription(e.target.value);
+    if (e.target.value.trim().length > 280) {
+      setErrorMessages(['投稿内容は２８０文字までです。']);
+      return;
+    }
+
+    setDescription(e.target.value.trim());
   };
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    if (!name.trim() || !description.trim()) return;
+    setErrorMessages([]);
+
+    if (!name.trim() || !description.trim()) {
+      if (!name.trim()) {
+        setErrorMessages(errorMessages => [...errorMessages, '名前が空欄です。']);
+      }
+      if (!description.trim()) {
+        setErrorMessages(errorMessages => [...errorMessages, '投稿内容が空欄です。']);
+      }
+
+      return;
+    }
 
     const url = 'http://localhost:8000/api/posts';
     const params = {
@@ -43,8 +65,6 @@ const Board: React.FC = () => {
     const response = await fetch(url, params);
     const newPost = await response.json();
 
-    console.log(newPost)
-
     if (newPost.status) {
       setPosts(oldPosts => [...oldPosts, newPost.data]);
       setName("");
@@ -55,6 +75,11 @@ const Board: React.FC = () => {
   return (
     <div className="mt-3 text-center">
       <h1 className="text-2xl">一言掲示板</h1>
+      <ul className="max-w-lg mx-auto mt-3 text-left text-red-400">
+        {errorMessages.map((errorMessage, $i) => (
+          <li key={$i}>{errorMessage}</li>
+        ))}
+      </ul>
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-3 text-left">
         <label htmlFor="name">名前</label>
         <br />
@@ -80,9 +105,9 @@ const Board: React.FC = () => {
       {posts.length > 0 ? (
         <div className="max-w-lg mx-auto text-left">
           {posts.map((post) => (
-            <div key={post.id} className="py-3 border-b-2">
+            <div key={post.id} className="py-3 border-b-2 break-all">
               <div className="flex justify-between items-baseline">
-                <span className="px-3 pb-3 text-lg">{post.name}</span>
+                <span className="max-w-xs px-3 pb-3 text-lg  break-all">{post.name}</span>
                 <span className="px-3 pb-3 text-md">{post.date}</span>
               </div>
               <p className="px-3">{post.description}</p>
