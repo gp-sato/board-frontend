@@ -69,6 +69,8 @@ const Board: React.FC = () => {
       setPosts(oldPosts => [...oldPosts, newPost.data]);
       setName("");
       setDescription("");
+    } else {
+      setErrorMessages([newPost.message]);
     }
   };
 
