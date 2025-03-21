@@ -66,7 +66,7 @@ const Board: React.FC = () => {
     const newPost = await response.json();
 
     if (newPost.status) {
-      setPosts(oldPosts => [...oldPosts, newPost.data]);
+      setPosts(oldPosts => [newPost.data, ...oldPosts]);
       setName("");
       setDescription("");
     } else {
