@@ -1,7 +1,13 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
-let echo;
+declare global {
+  interface Window {
+    Pusher: typeof Pusher;
+  }
+}
+
+let echo: Echo<'reverb'> | null = null;
 
 if (typeof window !== 'undefined') {
   // windowオブジェクトが存在する場合、つまりブラウザ環境でのみ実行される
