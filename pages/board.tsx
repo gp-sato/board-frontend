@@ -1,4 +1,5 @@
 import { ChangeEventHandler, FormEventHandler, useEffect, useState } from "react";
+import echo from '../lib/echo';
 
 interface ApiResponseItem {
   id: number;
@@ -14,10 +15,31 @@ const Board: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/posts')
-      .then(response => response.json())
-      .then((data: ApiResponseItem[]) => setPosts(data))
-      .catch(error => console.error('Error fetching data:', error));
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/posts');
+        const data: ApiResponseItem[] = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchPosts();
+
+    if (echo) {
+      // echoが正常に初期化された場合
+      echo.channel('chat').listen('MessageEvent', (e: ApiResponseItem) => {
+        setPosts(oldPosts => [e, ...oldPosts]);
+      });
+
+      // クリーンアップ：コンポーネントがアンマウントされる際にリスナーを解除
+      return () => {
+        echo?.leaveChannel('chat');
+      };
+    } else {
+      console.error("Echo is not defined.");
+    }
   }, []);
 
   const handleName: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -66,7 +88,6 @@ const Board: React.FC = () => {
     const newPost = await response.json();
 
     if (newPost.status) {
-      setPosts(oldPosts => [newPost.data, ...oldPosts]);
       setName("");
       setDescription("");
     } else {
