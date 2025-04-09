@@ -11,6 +11,7 @@
 # サービスの起動
 
 Next.jsのサーバーを起動する。<br>
-`npm run dev`
+`$ npm run dev`
 
-掲示板にアクセスする。`http://localhost:3000/board`。
+掲示板にアクセスする。<br>
+http://localhost:3000/board
